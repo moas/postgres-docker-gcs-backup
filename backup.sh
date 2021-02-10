@@ -3,7 +3,15 @@
 set -e
 set -o pipefail
 
+function cleanup() {
+  echo "Revoke gcloud auth"
+  gcloud auth revoke /key.json || true
 
+  echo "Remove key file generated"
+  rm -f /key.json
+}
+
+trap cleanup EXIT
 
 # Environment checks
 if [ "${POSTGRES_DATABASE}" = "**None**" ]; then
@@ -27,13 +35,19 @@ if [ "${POSTGRES_USER}" = "**None**" ]; then
 fi
 
 if [ "${POSTGRES_PASSWORD}" = "**None**" ]; then
-  echo "You need to set the POSTGRES_PASSWORD environment variable."
-  exit 1
+  if [ -f "${POSTGRES_PASSWORD_FILE}" ]; then
+    POSTGRES_PASSWORD=`cat ${POSTGRES_PASSWORD_FILE}`
+  else
+    echo "You need to set the POSTGRES_PASSWORD or POSTGRES_PASSWORD_FILE environment variable."
+    exit 1
+  fi
 fi
 
 if [ "${GCLOUD_KEYFILE_BASE64}" = "**None**" ]; then
-  echo "You need to set the GCLOUD_KEYFILE_BASE64 environment variable."
-  exit 1
+  if [ ! -f "${GCLOUD_KEYFILE_PATH}" ]; then
+    echo "You need to set the GCLOUD_KEYFILE_BASE64 or GCLOUD_KEYFILE_PATH environment variable."
+    exit 1
+  fi
 fi
 
 if [ "${GCLOUD_PROJECT_ID}" = "**None**" ]; then
@@ -50,14 +64,21 @@ fi
 
 # Google Cloud Auth
 echo "Authenticating to Google Cloud..."
-echo $GCLOUD_KEYFILE_BASE64 | base64 -d > /key.json
+
+if [ "${GCLOUD_KEYFILE_BASE64}" -ne "**None**" ]; then
+  echo $GCLOUD_KEYFILE_BASE64 | base64 -d > /key.json
+else
+  cat "${GCLOUD_KEYFILE_PATH}" > /key.json
+fi
+
 gcloud auth activate-service-account --key-file /key.json --project "$GCLOUD_PROJECT_ID" -q
 
 
 
 # Postgres dumping
 DATE=`date +"%Y-%m-%d_%H-%M-%S"`
-FILENAME="${DATE}.sql.gz"
+FILENAME="${FILENAME_PREFIX}${DATE}${FILENAME_SUFFIX}.sql.gz"
+
 export PGPASSWORD=$POSTGRES_PASSWORD
 POSTGRES_HOST_OPTS="-h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER $POSTGRES_EXTRA_OPTS"
 

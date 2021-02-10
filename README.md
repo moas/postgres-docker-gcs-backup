@@ -5,7 +5,7 @@ This docker image allows for scheduled backups of a postgres docker container to
 
 ## Usage
 
-This image is published on the [docker hub](https://hub.docker.com/r/nullriver/postgres-docker-gcs-backup).
+This image is published on the [docker hub](https://hub.docker.com/r/m0as/pg-docker-gcs-backup).
 
 ### Environment variables
 | Variable                | Description                                                                                                    |
@@ -15,10 +15,14 @@ This image is published on the [docker hub](https://hub.docker.com/r/nullriver/p
 | `POSTGRES_PORT`         | The port of the database to backup.  **Default:** 5432                                                         |
 | `POSTGRES_USER`         | The username of the backup user.                                                                               |
 | `POSTGRES_PASSWORD`     | The password of the backup user.                                                                               |
+| `POSTGRES_PASSWORD_FILE`| The password of the backup user. Use it to expose password via secret full path file.                          |
 | `POSTGRES_EXTRA_OPTS`   | Any additional options you wish to pass to `pg_dump`. **Default:** `''`                                        |
 | `GCLOUD_KEYFILE_BASE64` | The GCP service account's credential file, in base64. See below for recommendations regarding this.            |
+| `GCLOUD_KEYFILE_PATH`   | The GCP service account's credential file path. Use it if you want to expose secret full path of keyfile.      |
 | `GCLOUD_PROJECT_ID`     | The Project ID which the bucket you wish to backup to is in.                                                   |
 | `GCS_BACKUP_BUCKET`     | The `gs://` path to the storage bucket you wish to backup to.                                                  |
+| `FILENAME_PREFIX`       | Prefix of backup filename **Default:** `''`                                                                    |
+| `FILENAME_SUFFIX`       | Suffix of backup filename **Default:** `''`                                                                    |
 | `SCHEDULE`              | How often you wish the backup to occur. See [Scheduling](#Scheduling) for more information on formatting this. |
 
 ### Scheduling
@@ -35,7 +39,7 @@ Below is a sample Docker Compose service.
 
 ```yaml
 dbbackups:
-    image: "nullriver/postgres-docker-gcs-backup:latest"
+    image: "m0as/pg-docker-gcs-backup:latest"
     depends_on:
       - database
     networks:

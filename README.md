@@ -37,6 +37,10 @@ We recommend creating a new, write-only service account to the storage bucket yo
 
 Below is a sample Docker Compose service.
 
+### pg_dump
+
+Image contains pg_dump version 13.1
+
 ```yaml
 dbbackups:
     image: "m0as/pg-docker-gcs-backup:latest"

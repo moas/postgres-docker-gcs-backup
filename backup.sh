@@ -3,12 +3,15 @@
 set -e
 set -o pipefail
 
-function cleanup() {
+cleanup() {
   echo "Revoke gcloud auth"
-  gcloud auth revoke /key.json || true
+  gcloud auth revoke --all || true
 
   echo "Remove key file generated"
   rm -f /key.json
+
+  rm -f "$FILENAME"
+  echo "Remove dump generated"
 }
 
 trap cleanup EXIT
@@ -65,7 +68,7 @@ fi
 # Google Cloud Auth
 echo "Authenticating to Google Cloud..."
 
-if [ "${GCLOUD_KEYFILE_BASE64}" -ne "**None**" ]; then
+if [ "${GCLOUD_KEYFILE_BASE64}" != "**None**" ]; then
   echo $GCLOUD_KEYFILE_BASE64 | base64 -d > /key.json
 else
   cat "${GCLOUD_KEYFILE_PATH}" > /key.json

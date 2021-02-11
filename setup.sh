@@ -7,7 +7,7 @@ set -e
 apk update
 
 # Install pg_dump
-apk add --no-cache postgresql-client
+apk add --no-cache postgresql-client  --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main
 
 # Install go-chron
 apk add curl

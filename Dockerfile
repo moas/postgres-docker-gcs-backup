@@ -1,5 +1,5 @@
 FROM google/cloud-sdk:alpine
-LABEL maintainer="Jamie <jamie@dynastic.co>"
+LABEL maintainer="Oscar <lasm.landry@halittar.com>"
 
 # Install deps
 ADD setup.sh setup.sh

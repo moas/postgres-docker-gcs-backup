@@ -64,7 +64,6 @@ if [ "${GCS_BACKUP_BUCKET}" = "**None**" ]; then
 fi
 
 
-
 # Google Cloud Auth
 echo "Authenticating to Google Cloud..."
 
@@ -75,7 +74,6 @@ else
 fi
 
 gcloud auth activate-service-account --key-file /key.json --project "$GCLOUD_PROJECT_ID" -q
-
 
 
 # Postgres dumping
